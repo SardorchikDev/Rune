@@ -149,10 +149,9 @@ impl LlmProvider for AnthropicProvider {
             if payload == "[DONE]" { return None; }
             let parsed: Result<AnthropicStreamEvent, _> = serde_json::from_str(payload);
             match parsed {
-                Ok(AnthropicStreamEvent::ContentBlockDelta { delta }) => match delta {
-                    AnthropicDelta::TextDelta { text } => Some(text),
-                    _ => None,
-                },
+                Ok(AnthropicStreamEvent::ContentBlockDelta {
+                    delta: AnthropicDelta::TextDelta { text },
+                }) => Some(text),
                 _ => None,
             }
         });

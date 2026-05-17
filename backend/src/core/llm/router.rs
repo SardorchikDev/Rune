@@ -224,8 +224,7 @@ where
                 }
             };
             buf.push_str(&String::from_utf8_lossy(&chunk));
-            loop {
-                let Some(idx) = buf.find("\n\n").or_else(|| buf.find('\n')) else { break };
+            while let Some(idx) = buf.find("\n\n").or_else(|| buf.find('\n')) {
                 let raw_event = buf[..idx].to_string();
                 buf.drain(..=idx);
                 for line in raw_event.lines() {

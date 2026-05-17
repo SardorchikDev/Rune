@@ -115,8 +115,7 @@ impl LlmProvider for OllamaProvider {
                 match chunk {
                     Ok(bytes) => {
                         buf.push_str(&String::from_utf8_lossy(&bytes));
-                        loop {
-                            let Some(idx) = buf.find('\n') else { break };
+                        while let Some(idx) = buf.find('\n') {
                             let line = buf[..idx].to_string();
                             buf.drain(..=idx);
                             if line.trim().is_empty() { continue; }

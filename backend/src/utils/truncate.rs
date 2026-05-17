@@ -31,9 +31,9 @@ pub fn truncate_to_budget(messages: Vec<ChatMessage>, budget: usize) -> (Vec<Cha
 
     // First pass: keep all system messages.
     let mut working: Vec<Option<ChatMessage>> = messages.into_iter().map(Some).collect();
-    for i in 0..working.len() {
-        if working[i].as_ref().map(|m| m.role == Role::System).unwrap_or(false) {
-            if let Some(m) = working[i].take() {
+    for slot in working.iter_mut() {
+        if slot.as_ref().map(|m| m.role == Role::System).unwrap_or(false) {
+            if let Some(m) = slot.take() {
                 kept.push(m);
             }
         }

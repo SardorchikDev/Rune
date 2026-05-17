@@ -5,7 +5,7 @@ use crate::config::TelegramConfig;
 /// Returns `true` if the given Telegram user id is in the configured
 /// whitelist.
 pub fn is_authorised(cfg: &TelegramConfig, user_id: i64) -> bool {
-    cfg.allowed_user_ids.iter().any(|id| *id == user_id)
+    cfg.allowed_user_ids.contains(&user_id)
 }
 
 #[cfg(test)]
