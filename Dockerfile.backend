@@ -1,0 +1,52 @@
+# syntax=docker/dockerfile:1.6
+# ----- builder -----
+FROM rust:1.83-slim-bookworm AS builder
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        pkg-config \
+        libssl-dev \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY rust-toolchain.toml ./
+COPY backend/ ./backend/
+WORKDIR /app/backend
+
+ENV SQLX_OFFLINE=true
+RUN cargo build --release --locked --bin rune
+
+# ----- runtime -----
+FROM debian:bookworm-slim AS runtime
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        libssl3 \
+        sqlite3 \
+        bash \
+        coreutils \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=builder /app/backend/target/release/rune /usr/local/bin/rune
+COPY backend/migrations ./migrations
+COPY backend/prompts ./prompts
+COPY backend/config.example.toml ./config.example.toml
+
+RUN useradd --create-home --uid 10001 rune \
+    && mkdir -p /app/workspace /app/data \
+    && chown -R rune:rune /app
+
+USER rune
+
+ENV RUNE_DATABASE_URL=sqlite:///app/data/rune.db \
+    RUNE_CONFIG_PATH=/app/config.toml \
+    RUNE_WORKSPACE_DIR=/app/workspace \
+    RUST_LOG=info
+
+EXPOSE 8080
+CMD ["rune"]

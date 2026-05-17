@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --rune-bg: #080b0f;
+  --rune-surface: #0d1117;
+  --rune-border: #1c2128;
+  --rune-text-primary: #e6edf3;
+  --rune-text-muted: #7d8590;
+  --rune-accent-green: #00ff88;
+  --rune-accent-red: #ff3b30;
+  --rune-accent-amber: #ffbb33;
+  --rune-accent-cyan: #5be8ff;
+}
+
+html,
+body {
+  background-color: var(--rune-bg);
+  color: var(--rune-text-primary);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rune-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3038;
+}
+
+.rune-panel {
+  background-color: var(--rune-surface);
+  box-shadow: 0 0 0 1px var(--rune-border);
+}
+
+.rune-glow {
+  text-shadow: 0 0 6px rgba(0, 255, 136, 0.4);
+}
+
+.rune-grid {
+  background-image: linear-gradient(rgba(0, 255, 136, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--rune-text-primary);
+  -webkit-box-shadow: 0 0 0 30px var(--rune-surface) inset !important;
+}
