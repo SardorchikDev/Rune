@@ -13,6 +13,7 @@ backend/workspace/
 /dashboard/.env.local
 /dashboard/.env*.local
 /dashboard/next-env.d.ts
+/dashboard/tsconfig.tsbuildinfo
 
 # Editor
 .idea/
