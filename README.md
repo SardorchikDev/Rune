@@ -52,7 +52,40 @@ class clients of the same backend.
 
 ---
 
-## Quick start (Docker)
+## Quick start
+
+### One-line install (recommended)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/SardorchikDev/Rune/main/install.sh | bash
+```
+
+The installer runs a preflight (`git`, `docker`, `docker compose`, `openssl`),
+clones the repo into `~/rune`, walks you through a config wizard (auto-generated
+JWT secret, sha256-hashed dashboard password, one LLM provider key, optional
+Telegram bot), writes `backend/.env` + `backend/config.toml` with `0600`
+permissions, and brings the full Docker stack up. End-to-end it takes under two
+minutes on a clean machine.
+
+Flags worth knowing:
+
+```bash
+# Pick the install location and don't auto-start.
+curl -fsSL .../install.sh | bash -s -- --dir ~/agents/rune --skip-start
+
+# Update an existing install in place.
+curl -fsSL .../install.sh | bash -s -- --update
+
+# Fully scripted (CI / Ansible / etc).
+RUNE_DASHBOARD_PASSWORD="…" \
+RUNE_DEFAULT_PROVIDER=anthropic \
+RUNE_PROVIDER_API_KEY=sk-ant-… \
+curl -fsSL .../install.sh | bash -s -- --non-interactive
+```
+
+Run `bash install.sh --help` for the full flag list.
+
+### Manual setup (Docker)
 
 ```bash
 git clone https://github.com/SardorchikDev/Rune.git
