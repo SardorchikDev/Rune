@@ -25,7 +25,9 @@ pub fn extract_inline_tool_calls(content: &str, provider: &str) -> Vec<ToolCall>
         let mut rest = content;
         while let Some(idx) = rest.find(hint) {
             let after_hint = &rest[idx + hint.len()..];
-            let Some(end_idx) = after_hint.find("```") else { break };
+            let Some(end_idx) = after_hint.find("```") else {
+                break;
+            };
             let block = after_hint[..end_idx].trim();
             if let Ok(value) = serde_json::from_str::<serde_json::Value>(block) {
                 if let (Some(name), Some(args)) = (
@@ -75,13 +77,34 @@ pub fn build_http_client(timeout_secs: u64) -> AppResult<reqwest::Client> {
 pub fn build_all(cfg: &RuneConfig) -> AppResult<Vec<Arc<dyn LlmProvider>>> {
     let client = build_http_client(cfg.llm.timeout_secs)?;
     let providers: Vec<Arc<dyn LlmProvider>> = vec![
-        Arc::new(GeminiProvider::new(client.clone(), cfg.llm.providers.gemini.clone())),
-        Arc::new(GroqProvider::new(client.clone(), cfg.llm.providers.groq.clone())),
-        Arc::new(OpenRouterProvider::new(client.clone(), cfg.llm.providers.openrouter.clone())),
-        Arc::new(FireworksProvider::new(client.clone(), cfg.llm.providers.fireworks.clone())),
-        Arc::new(AnthropicProvider::new(client.clone(), cfg.llm.providers.anthropic.clone())),
-        Arc::new(OpenAiProvider::new(client.clone(), cfg.llm.providers.openai.clone())),
-        Arc::new(OllamaProvider::new(client, cfg.llm.providers.ollama.clone())),
+        Arc::new(GeminiProvider::new(
+            client.clone(),
+            cfg.llm.providers.gemini.clone(),
+        )),
+        Arc::new(GroqProvider::new(
+            client.clone(),
+            cfg.llm.providers.groq.clone(),
+        )),
+        Arc::new(OpenRouterProvider::new(
+            client.clone(),
+            cfg.llm.providers.openrouter.clone(),
+        )),
+        Arc::new(FireworksProvider::new(
+            client.clone(),
+            cfg.llm.providers.fireworks.clone(),
+        )),
+        Arc::new(AnthropicProvider::new(
+            client.clone(),
+            cfg.llm.providers.anthropic.clone(),
+        )),
+        Arc::new(OpenAiProvider::new(
+            client.clone(),
+            cfg.llm.providers.openai.clone(),
+        )),
+        Arc::new(OllamaProvider::new(
+            client,
+            cfg.llm.providers.ollama.clone(),
+        )),
     ];
     Ok(providers)
 }

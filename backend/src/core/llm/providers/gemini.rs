@@ -7,9 +7,7 @@ use serde_json::json;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::config::GeminiProviderConfig;
-use crate::core::llm::types::{
-    ChatMessage, LlmRequest, LlmResponse, Role, TokenStream, ToolCall,
-};
+use crate::core::llm::types::{ChatMessage, LlmRequest, LlmResponse, Role, TokenStream, ToolCall};
 use crate::core::llm::LlmProvider;
 use crate::error::{AppError, AppResult};
 
@@ -27,7 +25,12 @@ impl GeminiProvider {
     }
 
     fn endpoint(&self, model: &str, action: &str) -> String {
-        format!("{}/models/{}:{}", self.cfg.base_url.trim_end_matches('/'), model, action)
+        format!(
+            "{}/models/{}:{}",
+            self.cfg.base_url.trim_end_matches('/'),
+            model,
+            action
+        )
     }
 
     fn convert_messages(messages: &[ChatMessage]) -> (Option<String>, Vec<GeminiContent>) {
@@ -44,11 +47,15 @@ impl GeminiProvider {
                 }
                 Role::User => contents.push(GeminiContent {
                     role: "user".into(),
-                    parts: vec![GeminiPart::Text { text: m.content.clone() }],
+                    parts: vec![GeminiPart::Text {
+                        text: m.content.clone(),
+                    }],
                 }),
                 Role::Assistant => contents.push(GeminiContent {
                     role: "model".into(),
-                    parts: vec![GeminiPart::Text { text: m.content.clone() }],
+                    parts: vec![GeminiPart::Text {
+                        text: m.content.clone(),
+                    }],
                 }),
                 Role::Tool => contents.push(GeminiContent {
                     role: "function".into(),
@@ -64,7 +71,9 @@ impl GeminiProvider {
 
 #[async_trait]
 impl LlmProvider for GeminiProvider {
-    fn name(&self) -> &'static str { "gemini" }
+    fn name(&self) -> &'static str {
+        "gemini"
+    }
 
     fn supported_models(&self) -> Vec<String> {
         if self.cfg.models.is_empty() {
@@ -74,7 +83,9 @@ impl LlmProvider for GeminiProvider {
         }
     }
 
-    fn is_available(&self) -> bool { !self.cfg.api_key.is_empty() }
+    fn is_available(&self) -> bool {
+        !self.cfg.api_key.is_empty()
+    }
 
     async fn complete(&self, req: LlmRequest) -> AppResult<LlmResponse> {
         if self.cfg.api_key.is_empty() {
@@ -86,13 +97,21 @@ impl LlmProvider for GeminiProvider {
             body["systemInstruction"] = json!({ "parts": [{ "text": s }] });
         }
         let mut gen = serde_json::Map::new();
-        if let Some(t) = req.temperature { gen.insert("temperature".into(), json!(t)); }
-        if let Some(m) = req.max_tokens { gen.insert("maxOutputTokens".into(), json!(m)); }
+        if let Some(t) = req.temperature {
+            gen.insert("temperature".into(), json!(t));
+        }
+        if let Some(m) = req.max_tokens {
+            gen.insert("maxOutputTokens".into(), json!(m));
+        }
         if !gen.is_empty() {
             body["generationConfig"] = serde_json::Value::Object(gen);
         }
 
-        let url = format!("{}?key={}", self.endpoint(&req.model, "generateContent"), self.cfg.api_key);
+        let url = format!(
+            "{}?key={}",
+            self.endpoint(&req.model, "generateContent"),
+            self.cfg.api_key
+        );
         let resp = self
             .http
             .post(&url)
@@ -135,8 +154,12 @@ impl LlmProvider for GeminiProvider {
             body["systemInstruction"] = json!({ "parts": [{ "text": s }] });
         }
         let mut gen = serde_json::Map::new();
-        if let Some(t) = req.temperature { gen.insert("temperature".into(), json!(t)); }
-        if let Some(m) = req.max_tokens { gen.insert("maxOutputTokens".into(), json!(m)); }
+        if let Some(t) = req.temperature {
+            gen.insert("temperature".into(), json!(t));
+        }
+        if let Some(m) = req.max_tokens {
+            gen.insert("maxOutputTokens".into(), json!(m));
+        }
         if !gen.is_empty() {
             body["generationConfig"] = serde_json::Value::Object(gen);
         }
@@ -166,7 +189,11 @@ impl LlmProvider for GeminiProvider {
                             buf.push_str(text);
                         }
                     }
-                    if buf.is_empty() { None } else { Some(buf) }
+                    if buf.is_empty() {
+                        None
+                    } else {
+                        Some(buf)
+                    }
                 }
                 Err(_) => None,
             }

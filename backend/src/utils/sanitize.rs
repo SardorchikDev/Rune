@@ -7,9 +7,9 @@
 pub const BLOCKLIST_PATTERNS: &[&str] = &[
     "rm -rf /",
     "rm -rf --no-preserve-root",
-    ":(){",          // fork-bomb prefix
-    "/dev/sd",       // raw disks
-    "/dev/nvme",     // raw NVMe disks
+    ":(){",      // fork-bomb prefix
+    "/dev/sd",   // raw disks
+    "/dev/nvme", // raw NVMe disks
     "mkfs",
     "shutdown",
     "reboot",

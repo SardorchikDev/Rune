@@ -65,7 +65,12 @@ impl ToolOutcome {
     /// dashboard display.
     pub fn summary(&self) -> String {
         match self {
-            ToolOutcome::Text { output, stderr, exit_code, .. } => {
+            ToolOutcome::Text {
+                output,
+                stderr,
+                exit_code,
+                ..
+            } => {
                 let mut buf = String::new();
                 if let Some(code) = exit_code {
                     buf.push_str(&format!("[exit {code}] "));

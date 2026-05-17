@@ -102,8 +102,7 @@ pub async fn create_task(
     let state_for_loop = state.clone();
     tokio::spawn(async move {
         let task_id = task_id_for_loop.clone();
-        if let Err(e) = run_agent_task(state_for_loop.clone(), task_id_for_loop, prompt, rx).await
-        {
+        if let Err(e) = run_agent_task(state_for_loop.clone(), task_id_for_loop, prompt, rx).await {
             tracing::error!(task_id = %task_id, "agent task failed: {e}");
             let _ = sqlx::query("UPDATE tasks SET status = 'failed' WHERE id = ?")
                 .bind(&task_id)

@@ -107,12 +107,11 @@ mod tests {
         .await
         .unwrap();
 
-        let got: (String, String) =
-            sqlx::query_as("SELECT id, prompt FROM tasks WHERE id = ?")
-                .bind(&task_id)
-                .fetch_one(&pool)
-                .await
-                .unwrap();
+        let got: (String, String) = sqlx::query_as("SELECT id, prompt FROM tasks WHERE id = ?")
+            .bind(&task_id)
+            .fetch_one(&pool)
+            .await
+            .unwrap();
         assert_eq!(got.0, task_id);
         assert_eq!(got.1, "echo hi");
     }

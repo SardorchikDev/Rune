@@ -43,9 +43,15 @@ impl OllamaProvider {
 
 #[async_trait]
 impl LlmProvider for OllamaProvider {
-    fn name(&self) -> &'static str { "ollama" }
-    fn supported_models(&self) -> Vec<String> { vec![self.cfg.default_model.clone()] }
-    fn is_available(&self) -> bool { self.cfg.enabled }
+    fn name(&self) -> &'static str {
+        "ollama"
+    }
+    fn supported_models(&self) -> Vec<String> {
+        vec![self.cfg.default_model.clone()]
+    }
+    fn is_available(&self) -> bool {
+        self.cfg.enabled
+    }
 
     async fn complete(&self, req: LlmRequest) -> AppResult<LlmResponse> {
         if !self.cfg.enabled {
@@ -62,7 +68,10 @@ impl LlmProvider for OllamaProvider {
         });
         let resp = self
             .http
-            .post(format!("{}/api/chat", self.cfg.base_url.trim_end_matches('/')))
+            .post(format!(
+                "{}/api/chat",
+                self.cfg.base_url.trim_end_matches('/')
+            ))
             .json(&body)
             .send()
             .await?
@@ -99,7 +108,10 @@ impl LlmProvider for OllamaProvider {
         });
         let resp = self
             .http
-            .post(format!("{}/api/chat", self.cfg.base_url.trim_end_matches('/')))
+            .post(format!(
+                "{}/api/chat",
+                self.cfg.base_url.trim_end_matches('/')
+            ))
             .json(&body)
             .send()
             .await?
@@ -118,14 +130,18 @@ impl LlmProvider for OllamaProvider {
                         while let Some(idx) = buf.find('\n') {
                             let line = buf[..idx].to_string();
                             buf.drain(..=idx);
-                            if line.trim().is_empty() { continue; }
+                            if line.trim().is_empty() {
+                                continue;
+                            }
                             if let Ok(value) = serde_json::from_str::<OllamaResponse>(&line) {
                                 if !value.message.content.is_empty()
                                     && tx.send(Ok(value.message.content)).is_err()
                                 {
                                     return;
                                 }
-                                if value.done.unwrap_or(false) { return; }
+                                if value.done.unwrap_or(false) {
+                                    return;
+                                }
                             }
                         }
                     }
@@ -146,7 +162,10 @@ impl LlmProvider for OllamaProvider {
         let body = json!({ "model": "nomic-embed-text", "prompt": text });
         let resp = self
             .http
-            .post(format!("{}/api/embeddings", self.cfg.base_url.trim_end_matches('/')))
+            .post(format!(
+                "{}/api/embeddings",
+                self.cfg.base_url.trim_end_matches('/')
+            ))
             .json(&body)
             .send()
             .await?

@@ -83,7 +83,8 @@ pub async fn handle(
                             .await?;
                     }
                     Err(e) => {
-                        bot.send_message(msg.chat.id, format!("failed: {e}")).await?;
+                        bot.send_message(msg.chat.id, format!("failed: {e}"))
+                            .await?;
                     }
                 }
             }
@@ -91,17 +92,19 @@ pub async fn handle(
         BotCommand::Run(prompt) => {
             let prompt = prompt.trim().to_string();
             if prompt.is_empty() {
-                bot.send_message(msg.chat.id, "usage: /run <prompt>").await?;
+                bot.send_message(msg.chat.id, "usage: /run <prompt>")
+                    .await?;
                 return Ok(());
             }
-            let session_id = match ensure_session(&state.db, "telegram", Some(user.id.0 as i64)).await {
-                Ok(id) => id,
-                Err(e) => {
-                    bot.send_message(msg.chat.id, format!("session error: {e}"))
-                        .await?;
-                    return Ok(());
-                }
-            };
+            let session_id =
+                match ensure_session(&state.db, "telegram", Some(user.id.0 as i64)).await {
+                    Ok(id) => id,
+                    Err(e) => {
+                        bot.send_message(msg.chat.id, format!("session error: {e}"))
+                            .await?;
+                        return Ok(());
+                    }
+                };
             let task_id = uuid::Uuid::new_v4().to_string();
             if let Err(e) = sqlx::query(
                 "INSERT INTO tasks (id, session_id, prompt, status) VALUES (?, ?, ?, 'pending')",
@@ -112,7 +115,8 @@ pub async fn handle(
             .execute(&state.db)
             .await
             {
-                bot.send_message(msg.chat.id, format!("db error: {e}")).await?;
+                bot.send_message(msg.chat.id, format!("db error: {e}"))
+                    .await?;
                 return Ok(());
             }
 
@@ -137,13 +141,8 @@ pub async fn handle(
             let bot_for_final = bot.clone();
             let chat_id = msg.chat.id;
             tokio::spawn(async move {
-                let outcome = run_agent_task(
-                    state_for_loop.clone(),
-                    task_id_for_loop,
-                    prompt,
-                    rx,
-                )
-                .await;
+                let outcome =
+                    run_agent_task(state_for_loop.clone(), task_id_for_loop, prompt, rx).await;
                 state_for_loop.active_tasks.remove(&task_id_for_cleanup);
                 match outcome {
                     Ok(o) => {
@@ -164,7 +163,8 @@ pub async fn handle(
         BotCommand::Abort(id) => {
             let id = id.trim().to_string();
             if id.is_empty() {
-                bot.send_message(msg.chat.id, "usage: /abort <task_id>").await?;
+                bot.send_message(msg.chat.id, "usage: /abort <task_id>")
+                    .await?;
                 return Ok(());
             }
             let aborted = state

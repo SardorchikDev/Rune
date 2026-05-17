@@ -29,7 +29,9 @@ impl GroqProvider {
 
 #[async_trait]
 impl LlmProvider for GroqProvider {
-    fn name(&self) -> &'static str { "groq" }
+    fn name(&self) -> &'static str {
+        "groq"
+    }
     fn supported_models(&self) -> Vec<String> {
         if self.cfg.models.is_empty() {
             vec!["llama3-70b-8192".into(), "mixtral-8x7b-32768".into()]
@@ -37,7 +39,9 @@ impl LlmProvider for GroqProvider {
             self.cfg.models.clone()
         }
     }
-    fn is_available(&self) -> bool { !self.cfg.api_key.is_empty() }
+    fn is_available(&self) -> bool {
+        !self.cfg.api_key.is_empty()
+    }
 
     async fn complete(&self, req: LlmRequest) -> AppResult<LlmResponse> {
         if self.cfg.api_key.is_empty() {

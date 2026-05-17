@@ -73,7 +73,9 @@ enum Args {
 
 #[async_trait]
 impl Tool for FileTool {
-    fn name(&self) -> &'static str { "file" }
+    fn name(&self) -> &'static str {
+        "file"
+    }
     fn description(&self) -> &'static str {
         "Reads, writes, lists or deletes files inside the workspace sandbox. \
          All paths are resolved relative to the workspace root and are not \
@@ -102,9 +104,9 @@ impl Tool for FileTool {
         match args {
             Args::Read { path } => {
                 let p = self.safe_path(&path)?;
-                let content = tokio::fs::read_to_string(&p).await.map_err(|e| {
-                    AppError::Tool(format!("read {}: {e}", p.display()))
-                })?;
+                let content = tokio::fs::read_to_string(&p)
+                    .await
+                    .map_err(|e| AppError::Tool(format!("read {}: {e}", p.display())))?;
                 Ok(ToolOutcome::Text {
                     output: content,
                     stderr: String::new(),
@@ -117,9 +119,9 @@ impl Tool for FileTool {
                 if let Some(parent) = p.parent() {
                     tokio::fs::create_dir_all(parent).await.ok();
                 }
-                tokio::fs::write(&p, content.as_bytes()).await.map_err(|e| {
-                    AppError::Tool(format!("write {}: {e}", p.display()))
-                })?;
+                tokio::fs::write(&p, content.as_bytes())
+                    .await
+                    .map_err(|e| AppError::Tool(format!("write {}: {e}", p.display())))?;
                 Ok(ToolOutcome::Text {
                     output: format!("wrote {} bytes to {}", content.len(), path),
                     stderr: String::new(),
@@ -130,12 +132,14 @@ impl Tool for FileTool {
             Args::List { path } => {
                 let p = self.safe_path(&path)?;
                 let mut entries: Vec<serde_json::Value> = Vec::new();
-                let mut rd = tokio::fs::read_dir(&p).await.map_err(|e| {
-                    AppError::Tool(format!("list {}: {e}", p.display()))
-                })?;
-                while let Some(entry) = rd.next_entry().await.map_err(|e| {
-                    AppError::Tool(format!("list iter: {e}"))
-                })? {
+                let mut rd = tokio::fs::read_dir(&p)
+                    .await
+                    .map_err(|e| AppError::Tool(format!("list {}: {e}", p.display())))?;
+                while let Some(entry) = rd
+                    .next_entry()
+                    .await
+                    .map_err(|e| AppError::Tool(format!("list iter: {e}")))?
+                {
                     let ft = entry.file_type().await.ok();
                     entries.push(json!({
                         "name": entry.file_name().to_string_lossy(),
@@ -150,13 +154,13 @@ impl Tool for FileTool {
             Args::Delete { path } => {
                 let p = self.safe_path(&path)?;
                 if p.is_dir() {
-                    tokio::fs::remove_dir_all(&p).await.map_err(|e| {
-                        AppError::Tool(format!("delete dir {}: {e}", p.display()))
-                    })?;
+                    tokio::fs::remove_dir_all(&p)
+                        .await
+                        .map_err(|e| AppError::Tool(format!("delete dir {}: {e}", p.display())))?;
                 } else {
-                    tokio::fs::remove_file(&p).await.map_err(|e| {
-                        AppError::Tool(format!("delete {}: {e}", p.display()))
-                    })?;
+                    tokio::fs::remove_file(&p)
+                        .await
+                        .map_err(|e| AppError::Tool(format!("delete {}: {e}", p.display())))?;
                 }
                 Ok(ToolOutcome::Text {
                     output: format!("deleted {}", path),

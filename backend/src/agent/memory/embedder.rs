@@ -22,7 +22,12 @@ impl Embedder {
         model: String,
         expected_dim: usize,
     ) -> Self {
-        Self { router, provider, model, expected_dim }
+        Self {
+            router,
+            provider,
+            model,
+            expected_dim,
+        }
     }
 
     /// Computes an embedding for `text`. If the provider returns a vector of

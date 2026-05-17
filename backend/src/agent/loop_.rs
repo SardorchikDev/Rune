@@ -56,7 +56,9 @@ pub async fn run_agent_task(
     context.push(ChatMessage::user(&prompt));
 
     update_task_status(&state.db, &task_id, "running").await?;
-    let _ = state.ws_broadcast.send(WsEvent::status(&task_id, "running"));
+    let _ = state
+        .ws_broadcast
+        .send(WsEvent::status(&task_id, "running"));
 
     let recalled = state
         .memory
@@ -65,7 +67,14 @@ pub async fn run_agent_task(
         .inspect_err(|e| tracing::warn!("memory recall failed: {e}"))
         .unwrap_or_default();
     context.set_memories(recalled.clone());
-    insert_log(&state.db, &task_id, 0, "recall", &json!({"matches": recalled.len()})).await?;
+    insert_log(
+        &state.db,
+        &task_id,
+        0,
+        "recall",
+        &json!({"matches": recalled.len()}),
+    )
+    .await?;
 
     let mut plan = Plan::default();
     let mut iterations: u32 = 0;
@@ -80,7 +89,9 @@ pub async fn run_agent_task(
         if abort_rx.try_recv().is_ok() {
             tracing::info!(task_id = %task_id, "abort signal received");
             update_task_status(&state.db, &task_id, "aborted").await?;
-            let _ = state.ws_broadcast.send(WsEvent::status(&task_id, "aborted"));
+            let _ = state
+                .ws_broadcast
+                .send(WsEvent::status(&task_id, "aborted"));
             return Ok(TaskOutcome {
                 task_id,
                 success: false,
@@ -99,15 +110,17 @@ pub async fn run_agent_task(
 
         let model = state.llm_router.default_model().await;
         let tool_defs = state.tools.definitions();
-        let request = LlmRequest::new(context.build_request_messages(), &model)
-            .with_tools(tool_defs);
+        let request =
+            LlmRequest::new(context.build_request_messages(), &model).with_tools(tool_defs);
 
         let response = state
             .llm_router
             .route(Some(&task_id), request, None)
             .await?;
 
-        let _ = state.ws_broadcast.send(WsEvent::token(&task_id, &response.content));
+        let _ = state
+            .ws_broadcast
+            .send(WsEvent::token(&task_id, &response.content));
         insert_log(
             &state.db,
             &task_id,
@@ -158,7 +171,9 @@ pub async fn run_agent_task(
                 let outcome = state.tools.execute(call).await;
                 let summary = outcome.summary();
 
-                let _ = state.ws_broadcast.send(WsEvent::tool_result(&task_id, call, &outcome));
+                let _ = state
+                    .ws_broadcast
+                    .send(WsEvent::tool_result(&task_id, call, &outcome));
                 insert_log(
                     &state.db,
                     &task_id,
@@ -220,7 +235,9 @@ pub async fn run_agent_task(
 
     let status = if success { "completed" } else { "failed" };
     update_task_status(&state.db, &task_id, status).await?;
-    let _ = state.ws_broadcast.send(WsEvent::final_answer(&task_id, &final_answer, status));
+    let _ = state
+        .ws_broadcast
+        .send(WsEvent::final_answer(&task_id, &final_answer, status));
 
     Ok(TaskOutcome {
         task_id,
@@ -266,22 +283,16 @@ async fn summarise_context(
     Ok(response.content)
 }
 
-async fn update_task_status(
-    db: &sqlx::SqlitePool,
-    task_id: &str,
-    status: &str,
-) -> AppResult<()> {
+async fn update_task_status(db: &sqlx::SqlitePool, task_id: &str, status: &str) -> AppResult<()> {
     let completed = matches!(status, "completed" | "failed" | "aborted");
     if completed {
-        sqlx::query(
-            "UPDATE tasks SET status = ?, completed_at = ?, updated_at = ? WHERE id = ?",
-        )
-        .bind(status)
-        .bind(Utc::now())
-        .bind(Utc::now())
-        .bind(task_id)
-        .execute(db)
-        .await?;
+        sqlx::query("UPDATE tasks SET status = ?, completed_at = ?, updated_at = ? WHERE id = ?")
+            .bind(status)
+            .bind(Utc::now())
+            .bind(Utc::now())
+            .bind(task_id)
+            .execute(db)
+            .await?;
     } else {
         sqlx::query("UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?")
             .bind(status)
@@ -314,7 +325,9 @@ async fn insert_log(
 }
 
 fn preview(s: &str, max: usize) -> String {
-    if s.len() <= max { return s.to_string(); }
+    if s.len() <= max {
+        return s.to_string();
+    }
     let mut out = String::with_capacity(max + 3);
     out.push_str(&s[..max]);
     out.push_str("...");

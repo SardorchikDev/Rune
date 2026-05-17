@@ -28,7 +28,9 @@ impl WebSearchTool {
 }
 
 impl Default for WebSearchTool {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -38,11 +40,15 @@ struct Args {
     limit: usize,
 }
 
-fn default_limit() -> usize { 5 }
+fn default_limit() -> usize {
+    5
+}
 
 #[async_trait]
 impl Tool for WebSearchTool {
-    fn name(&self) -> &'static str { "web_search" }
+    fn name(&self) -> &'static str {
+        "web_search"
+    }
     fn description(&self) -> &'static str {
         "Searches the public web via DuckDuckGo and returns a ranked list of \
          title/url/snippet results."
@@ -63,10 +69,7 @@ impl Tool for WebSearchTool {
         let Args { query, limit } = serde_json::from_value(params)
             .map_err(|e| AppError::Tool(format!("invalid web_search args: {e}")))?;
 
-        let url = format!(
-            "https://duckduckgo.com/html/?q={}",
-            urlencoding(&query)
-        );
+        let url = format!("https://duckduckgo.com/html/?q={}", urlencoding(&query));
         let body = self
             .http
             .get(&url)
@@ -100,7 +103,9 @@ fn parse_ddg(html: &str, limit: usize) -> Vec<serde_json::Value> {
     // fallback is graceful (empty list).
     let mut results = Vec::new();
     for chunk in html.split("result__body").skip(1) {
-        if results.len() >= limit { break; }
+        if results.len() >= limit {
+            break;
+        }
         let url = extract_attr(chunk, "result__a", "href").unwrap_or_default();
         let title = extract_text(chunk, "result__a").unwrap_or_default();
         let snippet = extract_text(chunk, "result__snippet").unwrap_or_default();

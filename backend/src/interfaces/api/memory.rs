@@ -29,7 +29,11 @@ pub async fn list_memory(
     Query(q): Query<ListQuery>,
 ) -> AppResult<Json<Vec<MemoryItem>>> {
     let limit = q.limit.unwrap_or(50).clamp(1, 500);
-    let items = state.memory.semantic.list(q.query.as_deref(), limit).await?;
+    let items = state
+        .memory
+        .semantic
+        .list(q.query.as_deref(), limit)
+        .await?;
     Ok(Json(items))
 }
 

@@ -40,15 +40,30 @@ pub struct ChatMessage {
 impl ChatMessage {
     /// Constructs a system message.
     pub fn system(content: impl Into<String>) -> Self {
-        Self { role: Role::System, content: content.into(), tool_call_id: None, name: None }
+        Self {
+            role: Role::System,
+            content: content.into(),
+            tool_call_id: None,
+            name: None,
+        }
     }
     /// Constructs a user message.
     pub fn user(content: impl Into<String>) -> Self {
-        Self { role: Role::User, content: content.into(), tool_call_id: None, name: None }
+        Self {
+            role: Role::User,
+            content: content.into(),
+            tool_call_id: None,
+            name: None,
+        }
     }
     /// Constructs an assistant message.
     pub fn assistant(content: impl Into<String>) -> Self {
-        Self { role: Role::Assistant, content: content.into(), tool_call_id: None, name: None }
+        Self {
+            role: Role::Assistant,
+            content: content.into(),
+            tool_call_id: None,
+            name: None,
+        }
     }
     /// Constructs a tool-result message tied to a specific `tool_call_id`.
     pub fn tool(content: impl Into<String>, tool_call_id: impl Into<String>) -> Self {
@@ -161,7 +176,10 @@ pub struct LlmResponse {
 impl LlmResponse {
     /// Returns a [`Usage`] view over the token counts.
     pub fn usage(&self) -> Usage {
-        Usage { input_tokens: self.input_tokens, output_tokens: self.output_tokens }
+        Usage {
+            input_tokens: self.input_tokens,
+            output_tokens: self.output_tokens,
+        }
     }
 }
 

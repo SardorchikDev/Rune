@@ -29,9 +29,15 @@ impl OpenAiProvider {
 
 #[async_trait]
 impl LlmProvider for OpenAiProvider {
-    fn name(&self) -> &'static str { "openai" }
-    fn supported_models(&self) -> Vec<String> { vec![self.cfg.default_model.clone()] }
-    fn is_available(&self) -> bool { !self.cfg.api_key.is_empty() }
+    fn name(&self) -> &'static str {
+        "openai"
+    }
+    fn supported_models(&self) -> Vec<String> {
+        vec![self.cfg.default_model.clone()]
+    }
+    fn is_available(&self) -> bool {
+        !self.cfg.api_key.is_empty()
+    }
 
     async fn complete(&self, req: LlmRequest) -> AppResult<LlmResponse> {
         ensure_key(&self.cfg.api_key)?;

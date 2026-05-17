@@ -70,11 +70,17 @@ pub enum WsEvent {
 impl WsEvent {
     /// Convenience constructor for [`WsEvent::Token`].
     pub fn token(task_id: &str, text: &str) -> Self {
-        Self::Token { task_id: task_id.into(), text: text.into() }
+        Self::Token {
+            task_id: task_id.into(),
+            text: text.into(),
+        }
     }
     /// Convenience constructor for [`WsEvent::Status`].
     pub fn status(task_id: &str, status: &str) -> Self {
-        Self::Status { task_id: task_id.into(), status: status.into() }
+        Self::Status {
+            task_id: task_id.into(),
+            status: status.into(),
+        }
     }
     /// Convenience constructor for [`WsEvent::ToolCall`].
     pub fn tool_call(task_id: &str, call: &ToolCall) -> Self {
@@ -147,7 +153,9 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>) {
 
     let send_task = tokio::spawn(async move {
         while let Ok(event) = rx.recv().await {
-            let Ok(payload) = serde_json::to_string(&event) else { continue };
+            let Ok(payload) = serde_json::to_string(&event) else {
+                continue;
+            };
             if sender.send(Message::Text(payload)).await.is_err() {
                 break;
             }

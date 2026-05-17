@@ -41,7 +41,10 @@ impl AgentContext {
 
     /// Total non-system messages currently in flight.
     pub fn message_count(&self) -> usize {
-        self.messages.iter().filter(|m| m.role != Role::System).count()
+        self.messages
+            .iter()
+            .filter(|m| m.role != Role::System)
+            .count()
     }
 
     /// Whether the auto-summarisation threshold has been exceeded.
@@ -76,8 +79,7 @@ impl AgentContext {
         combined.push(ChatMessage::system(system));
         combined.extend(self.messages.iter().cloned());
 
-        let (truncated, dropped) =
-            truncate::truncate_to_budget(combined, self.budget_tokens);
+        let (truncated, dropped) = truncate::truncate_to_budget(combined, self.budget_tokens);
         if dropped > 0 {
             tracing::debug!(dropped, "truncated context to fit budget");
         }

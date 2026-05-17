@@ -8,9 +8,7 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::config::AnthropicProviderConfig;
 use crate::core::llm::router::sse_token_stream;
-use crate::core::llm::types::{
-    ChatMessage, LlmRequest, LlmResponse, Role, TokenStream, ToolCall,
-};
+use crate::core::llm::types::{ChatMessage, LlmRequest, LlmResponse, Role, TokenStream, ToolCall};
 use crate::core::llm::LlmProvider;
 use crate::error::{AppError, AppResult};
 
@@ -62,9 +60,15 @@ impl AnthropicProvider {
 
 #[async_trait]
 impl LlmProvider for AnthropicProvider {
-    fn name(&self) -> &'static str { "anthropic" }
-    fn supported_models(&self) -> Vec<String> { vec![self.cfg.default_model.clone()] }
-    fn is_available(&self) -> bool { !self.cfg.api_key.is_empty() }
+    fn name(&self) -> &'static str {
+        "anthropic"
+    }
+    fn supported_models(&self) -> Vec<String> {
+        vec![self.cfg.default_model.clone()]
+    }
+    fn is_available(&self) -> bool {
+        !self.cfg.api_key.is_empty()
+    }
 
     async fn complete(&self, req: LlmRequest) -> AppResult<LlmResponse> {
         if self.cfg.api_key.is_empty() {
@@ -76,12 +80,19 @@ impl LlmProvider for AnthropicProvider {
             "messages": messages,
             "max_tokens": req.max_tokens.unwrap_or(4096),
         });
-        if let Some(s) = system { body["system"] = json!(s); }
-        if let Some(t) = req.temperature { body["temperature"] = json!(t); }
+        if let Some(s) = system {
+            body["system"] = json!(s);
+        }
+        if let Some(t) = req.temperature {
+            body["temperature"] = json!(t);
+        }
 
         let resp = self
             .http
-            .post(format!("{}/messages", self.cfg.base_url.trim_end_matches('/')))
+            .post(format!(
+                "{}/messages",
+                self.cfg.base_url.trim_end_matches('/')
+            ))
             .header("x-api-key", &self.cfg.api_key)
             .header("anthropic-version", "2023-06-01")
             .json(&body)
@@ -131,12 +142,19 @@ impl LlmProvider for AnthropicProvider {
             "max_tokens": req.max_tokens.unwrap_or(4096),
             "stream": true,
         });
-        if let Some(s) = system { body["system"] = json!(s); }
-        if let Some(t) = req.temperature { body["temperature"] = json!(t); }
+        if let Some(s) = system {
+            body["system"] = json!(s);
+        }
+        if let Some(t) = req.temperature {
+            body["temperature"] = json!(t);
+        }
 
         let resp = self
             .http
-            .post(format!("{}/messages", self.cfg.base_url.trim_end_matches('/')))
+            .post(format!(
+                "{}/messages",
+                self.cfg.base_url.trim_end_matches('/')
+            ))
             .header("x-api-key", &self.cfg.api_key)
             .header("anthropic-version", "2023-06-01")
             .json(&body)
@@ -146,7 +164,9 @@ impl LlmProvider for AnthropicProvider {
             .map_err(|e| AppError::Llm(format!("anthropic http error: {e}")))?;
 
         let stream = sse_token_stream(resp, |payload| {
-            if payload == "[DONE]" { return None; }
+            if payload == "[DONE]" {
+                return None;
+            }
             let parsed: Result<AnthropicStreamEvent, _> = serde_json::from_str(payload);
             match parsed {
                 Ok(AnthropicStreamEvent::ContentBlockDelta {
@@ -160,7 +180,9 @@ impl LlmProvider for AnthropicProvider {
         tokio::spawn(async move {
             tokio::pin!(stream);
             while let Some(item) = stream.next().await {
-                if tx.send(item).is_err() { break; }
+                if tx.send(item).is_err() {
+                    break;
+                }
             }
         });
         Ok(Box::pin(UnboundedReceiverStream::new(rx)))

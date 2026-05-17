@@ -29,9 +29,15 @@ impl FireworksProvider {
 
 #[async_trait]
 impl LlmProvider for FireworksProvider {
-    fn name(&self) -> &'static str { "fireworks" }
-    fn supported_models(&self) -> Vec<String> { vec![self.cfg.default_model.clone()] }
-    fn is_available(&self) -> bool { !self.cfg.api_key.is_empty() }
+    fn name(&self) -> &'static str {
+        "fireworks"
+    }
+    fn supported_models(&self) -> Vec<String> {
+        vec![self.cfg.default_model.clone()]
+    }
+    fn is_available(&self) -> bool {
+        !self.cfg.api_key.is_empty()
+    }
 
     async fn complete(&self, req: LlmRequest) -> AppResult<LlmResponse> {
         if self.cfg.api_key.is_empty() {

@@ -76,7 +76,9 @@ impl LlmRouter {
     /// Sets the default provider + model. Validates that the provider exists.
     pub async fn set_default(&self, provider: &str, model: &str) -> AppResult<()> {
         if !self.providers.contains_key(provider) {
-            return Err(AppError::BadRequest(format!("unknown provider: {provider}")));
+            return Err(AppError::BadRequest(format!(
+                "unknown provider: {provider}"
+            )));
         }
         *self.default_provider.write().await = provider.to_string();
         *self.default_model.write().await = model.to_string();
@@ -94,9 +96,12 @@ impl LlmRouter {
     /// additional providers from the configured order.
     async fn failover_chain(&self, preferred: Option<&str>) -> Vec<String> {
         let mut chain = Vec::new();
-        let first = preferred
-            .map(|s| s.to_string())
-            .unwrap_or_else(|| self.default_provider.try_read().map(|g| g.clone()).unwrap_or_default());
+        let first = preferred.map(|s| s.to_string()).unwrap_or_else(|| {
+            self.default_provider
+                .try_read()
+                .map(|g| g.clone())
+                .unwrap_or_default()
+        });
         chain.push(first.clone());
         if self.failover_enabled {
             for name in &self.failover_order {
@@ -119,7 +124,9 @@ impl LlmRouter {
         let chain = self.failover_chain(preferred).await;
         let mut last_err: Option<AppError> = None;
         for name in &chain {
-            let Some(provider) = self.providers.get(name) else { continue };
+            let Some(provider) = self.providers.get(name) else {
+                continue;
+            };
             if !provider.is_available() {
                 tracing::warn!(provider = %name, "skipping unavailable provider");
                 continue;
@@ -147,7 +154,9 @@ impl LlmRouter {
             }
         }
         Err(last_err.unwrap_or_else(|| {
-            AppError::Llm(format!("LlmRouter: all providers exhausted (tried: {chain:?})"))
+            AppError::Llm(format!(
+                "LlmRouter: all providers exhausted (tried: {chain:?})"
+            ))
         }))
     }
 
@@ -160,7 +169,9 @@ impl LlmRouter {
         let chain = self.failover_chain(preferred).await;
         let mut last_err: Option<AppError> = None;
         for name in &chain {
-            let Some(provider) = self.providers.get(name) else { continue };
+            let Some(provider) = self.providers.get(name) else {
+                continue;
+            };
             if !provider.is_available() {
                 continue;
             }
@@ -173,16 +184,17 @@ impl LlmRouter {
                 }
             }
         }
-        Err(last_err.unwrap_or_else(|| {
-            AppError::Llm("LlmRouter: all providers exhausted (stream)".into())
-        }))
+        Err(last_err
+            .unwrap_or_else(|| AppError::Llm("LlmRouter: all providers exhausted (stream)".into())))
     }
 
     /// Computes an embedding using the embedding provider declared in the
     /// memory config. Falls back to the default provider's embed.
     pub async fn embed(&self, provider: &str, text: &str) -> AppResult<Vec<f32>> {
         let Some(p) = self.providers.get(provider) else {
-            return Err(AppError::Llm(format!("unknown embedding provider: {provider}")));
+            return Err(AppError::Llm(format!(
+                "unknown embedding provider: {provider}"
+            )));
         };
         p.embed(text).await
     }
@@ -255,9 +267,15 @@ mod tests {
 
     #[async_trait]
     impl LlmProvider for DummyProvider {
-        fn name(&self) -> &'static str { self.name }
-        fn supported_models(&self) -> Vec<String> { vec!["m".into()] }
-        fn is_available(&self) -> bool { true }
+        fn name(&self) -> &'static str {
+            self.name
+        }
+        fn supported_models(&self) -> Vec<String> {
+            vec!["m".into()]
+        }
+        fn is_available(&self) -> bool {
+            true
+        }
 
         async fn complete(&self, _req: LlmRequest) -> AppResult<LlmResponse> {
             self.calls.fetch_add(1, Ordering::SeqCst);
@@ -299,21 +317,25 @@ mod tests {
         let mut map: HashMap<String, Arc<dyn LlmProvider>> = HashMap::new();
         map.insert(
             "a".into(),
-            Arc::new(DummyProvider { name: "a", fail: true, calls: calls_a.clone() }),
+            Arc::new(DummyProvider {
+                name: "a",
+                fail: true,
+                calls: calls_a.clone(),
+            }),
         );
         map.insert(
             "b".into(),
-            Arc::new(DummyProvider { name: "b", fail: false, calls: calls_b.clone() }),
+            Arc::new(DummyProvider {
+                name: "b",
+                fail: false,
+                calls: calls_b.clone(),
+            }),
         );
 
         let pool = make_pool().await;
         let router = LlmRouter::from_providers(map, "a", "m", vec!["b".into()], pool);
         let response = router
-            .route(
-                None,
-                LlmRequest::new(vec![], "m"),
-                None,
-            )
+            .route(None, LlmRequest::new(vec![], "m"), None)
             .await
             .expect("should succeed via failover");
         assert_eq!(response.provider, "b");

@@ -28,7 +28,10 @@ impl OpenAiCompatibleClient {
         let body = build_body(&req, false);
         let resp = self
             .http
-            .post(format!("{}/chat/completions", self.base_url.trim_end_matches('/')))
+            .post(format!(
+                "{}/chat/completions",
+                self.base_url.trim_end_matches('/')
+            ))
             .bearer_auth(&self.api_key)
             .json(&body)
             .send()
@@ -38,15 +41,17 @@ impl OpenAiCompatibleClient {
             .json::<OpenAiChatResponse>()
             .await?;
 
-        let choice = resp.choices.into_iter().next().ok_or_else(|| {
-            AppError::Llm(format!("{}: empty choices", self.provider_name))
-        })?;
+        let choice = resp
+            .choices
+            .into_iter()
+            .next()
+            .ok_or_else(|| AppError::Llm(format!("{}: empty choices", self.provider_name)))?;
 
         let mut tool_calls = Vec::new();
         if let Some(calls) = choice.message.tool_calls {
             for c in calls {
-                let arguments = serde_json::from_str(&c.function.arguments)
-                    .unwrap_or_else(|_| json!({}));
+                let arguments =
+                    serde_json::from_str(&c.function.arguments).unwrap_or_else(|_| json!({}));
                 tool_calls.push(ToolCall {
                     id: c.id,
                     name: c.function.name,
@@ -64,7 +69,11 @@ impl OpenAiCompatibleClient {
             content,
             tool_calls,
             input_tokens: resp.usage.as_ref().map(|u| u.prompt_tokens).unwrap_or(0),
-            output_tokens: resp.usage.as_ref().map(|u| u.completion_tokens).unwrap_or(0),
+            output_tokens: resp
+                .usage
+                .as_ref()
+                .map(|u| u.completion_tokens)
+                .unwrap_or(0),
             provider: self.provider_name.into(),
             model: req.model,
         })
@@ -75,7 +84,10 @@ impl OpenAiCompatibleClient {
         let body = build_body(&req, true);
         let resp = self
             .http
-            .post(format!("{}/chat/completions", self.base_url.trim_end_matches('/')))
+            .post(format!(
+                "{}/chat/completions",
+                self.base_url.trim_end_matches('/')
+            ))
             .bearer_auth(&self.api_key)
             .json(&body)
             .send()
@@ -96,7 +108,11 @@ impl OpenAiCompatibleClient {
                             buf.push_str(content);
                         }
                     }
-                    if buf.is_empty() { None } else { Some(buf) }
+                    if buf.is_empty() {
+                        None
+                    } else {
+                        Some(buf)
+                    }
                 }
                 Err(_) => None,
             }
@@ -119,7 +135,10 @@ impl OpenAiCompatibleClient {
         let body = json!({ "model": model, "input": text });
         let resp = self
             .http
-            .post(format!("{}/embeddings", self.base_url.trim_end_matches('/')))
+            .post(format!(
+                "{}/embeddings",
+                self.base_url.trim_end_matches('/')
+            ))
             .bearer_auth(&self.api_key)
             .json(&body)
             .send()

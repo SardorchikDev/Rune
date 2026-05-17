@@ -45,7 +45,9 @@ struct Args {
 
 #[async_trait]
 impl Tool for HttpFetchTool {
-    fn name(&self) -> &'static str { "http_fetch" }
+    fn name(&self) -> &'static str {
+        "http_fetch"
+    }
     fn description(&self) -> &'static str {
         "Fetches a single URL (GET) from the configured allowlist. Returns \
          the raw response body and status code."
@@ -65,8 +67,8 @@ impl Tool for HttpFetchTool {
         let Args { url } = serde_json::from_value(params)
             .map_err(|e| AppError::Tool(format!("invalid http_fetch args: {e}")))?;
 
-        let parsed = url::Url::parse(&url)
-            .map_err(|e| AppError::Tool(format!("invalid url: {e}")))?;
+        let parsed =
+            url::Url::parse(&url).map_err(|e| AppError::Tool(format!("invalid url: {e}")))?;
         if !matches!(parsed.scheme(), "http" | "https") {
             return Err(AppError::Forbidden(format!(
                 "http_fetch only supports http(s), got {}",

@@ -33,7 +33,9 @@ struct Args {
 
 #[async_trait]
 impl Tool for TerminalTool {
-    fn name(&self) -> &'static str { "terminal" }
+    fn name(&self) -> &'static str {
+        "terminal"
+    }
     fn description(&self) -> &'static str {
         "Runs a single bash command inside the workspace sandbox. Output \
          and stderr are returned along with the exit code."
@@ -62,9 +64,8 @@ impl Tool for TerminalTool {
             )));
         }
 
-        std::fs::create_dir_all(&self.cfg.workspace_dir).map_err(|e| {
-            AppError::Tool(format!("could not create workspace dir: {e}"))
-        })?;
+        std::fs::create_dir_all(&self.cfg.workspace_dir)
+            .map_err(|e| AppError::Tool(format!("could not create workspace dir: {e}")))?;
 
         let mut cmd = Command::new("bash");
         cmd.arg("-c")
@@ -127,7 +128,9 @@ mod tests {
             .await
             .unwrap();
         match outcome {
-            ToolOutcome::Text { output, exit_code, .. } => {
+            ToolOutcome::Text {
+                output, exit_code, ..
+            } => {
                 assert!(output.contains("hello"));
                 assert_eq!(exit_code, Some(0));
             }

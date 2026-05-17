@@ -52,7 +52,12 @@ impl VectorBackend {
         }
     }
 
-    async fn upsert(&self, id: &str, vector: Vec<f32>, payload: serde_json::Value) -> AppResult<()> {
+    async fn upsert(
+        &self,
+        id: &str,
+        vector: Vec<f32>,
+        payload: serde_json::Value,
+    ) -> AppResult<()> {
         match self {
             Self::Qdrant(c) => c.upsert(id, vector, payload).await,
             Self::InMemory(s) => s.upsert(id, vector, payload).await,
@@ -97,7 +102,12 @@ pub struct SemanticMemory {
 impl SemanticMemory {
     /// Creates a new semantic memory facade.
     pub fn new(db: SqlitePool, embedder: Arc<Embedder>, backend: Arc<VectorBackend>) -> Self {
-        Self { db, embedder, backend, initialised: tokio::sync::OnceCell::new() }
+        Self {
+            db,
+            embedder,
+            backend,
+            initialised: tokio::sync::OnceCell::new(),
+        }
     }
 
     async fn ensure_init(&self) -> AppResult<()> {
@@ -404,10 +414,18 @@ struct InMemoryPoint {
 impl InMemoryVectorStore {
     /// Creates a new in-memory store.
     pub fn new(dim: usize) -> Self {
-        Self { dim, inner: RwLock::new(Vec::new()) }
+        Self {
+            dim,
+            inner: RwLock::new(Vec::new()),
+        }
     }
 
-    async fn upsert(&self, id: &str, vector: Vec<f32>, payload: serde_json::Value) -> AppResult<()> {
+    async fn upsert(
+        &self,
+        id: &str,
+        vector: Vec<f32>,
+        payload: serde_json::Value,
+    ) -> AppResult<()> {
         if vector.len() != self.dim && !vector.is_empty() {
             return Err(AppError::Internal(format!(
                 "in-memory store: dim mismatch ({} vs {})",

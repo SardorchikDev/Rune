@@ -39,7 +39,9 @@ pub struct DatabaseConfig {
 
 impl Default for DatabaseConfig {
     fn default() -> Self {
-        Self { url: "sqlite://./data/rune.db?mode=rwc".to_string() }
+        Self {
+            url: "sqlite://./data/rune.db?mode=rwc".to_string(),
+        }
     }
 }
 
@@ -98,9 +100,15 @@ pub struct LlmConfig {
     pub providers: ProvidersConfig,
 }
 
-fn default_stream_tokens() -> bool { true }
-fn default_max_retries() -> u32 { 3 }
-fn default_timeout_secs() -> u64 { 120 }
+fn default_stream_tokens() -> bool {
+    true
+}
+fn default_max_retries() -> u32 {
+    3
+}
+fn default_timeout_secs() -> u64 {
+    120
+}
 
 /// Failover configuration block.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -238,7 +246,9 @@ pub struct MemoryConfig {
     pub top_k: usize,
 }
 
-fn default_embedding_dim() -> usize { 768 }
+fn default_embedding_dim() -> usize {
+    768
+}
 
 /// Tool sandbox configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -359,9 +369,7 @@ impl RuneConfig {
             )));
         }
 
-        if self.default_provider_api_key().is_empty()
-            && self.llm.default_provider != "ollama"
-        {
+        if self.default_provider_api_key().is_empty() && self.llm.default_provider != "ollama" {
             return Err(AppError::Config(format!(
                 "API key for default provider {:?} is empty. \
                  Set the appropriate env var (see config.example.toml) before starting Rune.",
@@ -416,10 +424,8 @@ impl RuneConfig {
         clone.llm.providers.groq.api_key = mask_secret(&clone.llm.providers.groq.api_key);
         clone.llm.providers.openrouter.api_key =
             mask_secret(&clone.llm.providers.openrouter.api_key);
-        clone.llm.providers.fireworks.api_key =
-            mask_secret(&clone.llm.providers.fireworks.api_key);
-        clone.llm.providers.anthropic.api_key =
-            mask_secret(&clone.llm.providers.anthropic.api_key);
+        clone.llm.providers.fireworks.api_key = mask_secret(&clone.llm.providers.fireworks.api_key);
+        clone.llm.providers.anthropic.api_key = mask_secret(&clone.llm.providers.anthropic.api_key);
         clone.llm.providers.openai.api_key = mask_secret(&clone.llm.providers.openai.api_key);
         clone
     }
@@ -473,7 +479,10 @@ mod tests {
         let cfg = sample_config();
         let masked = cfg.masked();
         assert!(masked.llm.providers.gemini.api_key.ends_with("****"));
-        assert_ne!(masked.llm.providers.gemini.api_key, cfg.llm.providers.gemini.api_key);
+        assert_ne!(
+            masked.llm.providers.gemini.api_key,
+            cfg.llm.providers.gemini.api_key
+        );
         assert!(masked.server.jwt_secret.ends_with("****"));
     }
 

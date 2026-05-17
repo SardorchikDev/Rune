@@ -11,8 +11,8 @@ use async_trait::async_trait;
 
 pub use router::LlmRouter;
 pub use types::{
-    ChatMessage, LlmRequest, LlmResponse, Role, StreamChunk, TokenStream, ToolCall,
-    ToolDefinition, Usage,
+    ChatMessage, LlmRequest, LlmResponse, Role, StreamChunk, TokenStream, ToolCall, ToolDefinition,
+    Usage,
 };
 
 use crate::error::AppResult;

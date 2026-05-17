@@ -19,13 +19,15 @@ use tracing_subscriber::EnvFilter;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info,rune=debug".into()))
+        .with_env_filter(
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| "info,rune=debug".into()),
+        )
         .with_target(true)
         .init();
 
     let config_path = std::env::var("RUNE_CONFIG").unwrap_or_else(|_| "config.toml".into());
-    let cfg = RuneConfig::load(&config_path)
-        .context(format!("loading config from {config_path}"))?;
+    let cfg =
+        RuneConfig::load(&config_path).context(format!("loading config from {config_path}"))?;
     let bind: SocketAddr = format!("{}:{}", cfg.server.host, cfg.server.port)
         .parse()
         .context("invalid server.host / server.port")?;

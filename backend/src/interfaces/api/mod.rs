@@ -31,16 +31,28 @@ pub fn build_router(state: Arc<AppState>) -> Router {
 
     let protected = Router::new()
         .route("/api/status", get(status::get_status))
-        .route("/api/tasks", post(tasks::create_task).get(tasks::list_tasks))
+        .route(
+            "/api/tasks",
+            post(tasks::create_task).get(tasks::list_tasks),
+        )
         .route("/api/tasks/:id", get(tasks::get_task))
         .route("/api/agent/abort", post(tasks::abort_task))
-        .route("/api/memory", get(memory::list_memory).post(memory::add_memory))
+        .route(
+            "/api/memory",
+            get(memory::list_memory).post(memory::add_memory),
+        )
         .route("/api/memory/:id", delete(memory::delete_memory))
         .route("/api/tools", get(tools::list_tools))
         .route("/api/tools/execute", post(tools::execute_tool))
         .route("/api/model", get(model::get_model).put(model::set_model))
-        .route("/api/config", get(config::get_config).put(config::update_config))
-        .layer(middleware::from_fn_with_state(state.clone(), auth::require_jwt));
+        .route(
+            "/api/config",
+            get(config::get_config).put(config::update_config),
+        )
+        .layer(middleware::from_fn_with_state(
+            state.clone(),
+            auth::require_jwt,
+        ));
 
     Router::new()
         .merge(public)
@@ -63,7 +75,10 @@ pub fn build_cors_layer(state: Arc<AppState>) -> CorsLayer {
     let mut layer = CorsLayer::new()
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
         .allow_credentials(true)
-        .allow_headers([axum::http::header::CONTENT_TYPE, axum::http::header::AUTHORIZATION]);
+        .allow_headers([
+            axum::http::header::CONTENT_TYPE,
+            axum::http::header::AUTHORIZATION,
+        ]);
     for origin in cors_origins {
         if let Ok(v) = HeaderValue::from_str(&origin) {
             layer = layer.allow_origin(v);

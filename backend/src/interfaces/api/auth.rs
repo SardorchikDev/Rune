@@ -78,7 +78,10 @@ pub async fn login(
         &claims,
         &EncodingKey::from_secret(secret.as_bytes()),
     )?;
-    Ok(Json(LoginResponse { token, expires_at: exp }))
+    Ok(Json(LoginResponse {
+        token,
+        expires_at: exp,
+    }))
 }
 
 /// Verifies a JWT and inserts the [`Claims`] into the request extensions for

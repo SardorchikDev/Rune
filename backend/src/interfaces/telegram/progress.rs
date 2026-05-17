@@ -26,7 +26,13 @@ impl ProgressReporter {
         task_id: String,
         rx: Receiver<WsEvent>,
     ) -> Self {
-        Self { bot, chat_id, message_id, task_id, rx }
+        Self {
+            bot,
+            chat_id,
+            message_id,
+            task_id,
+            rx,
+        }
     }
 
     /// Consumes the broadcast bus and updates the Telegram message at most
@@ -37,8 +43,7 @@ impl ProgressReporter {
         const FLUSH_INTERVAL: Duration = Duration::from_millis(750);
 
         loop {
-            let event = match tokio::time::timeout(Duration::from_secs(120), self.rx.recv()).await
-            {
+            let event = match tokio::time::timeout(Duration::from_secs(120), self.rx.recv()).await {
                 Ok(Ok(ev)) => ev,
                 Ok(Err(_)) => return,
                 Err(_) => return,

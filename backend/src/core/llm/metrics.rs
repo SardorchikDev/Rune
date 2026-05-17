@@ -39,7 +39,9 @@ pub async fn record_usage(
     task_id: Option<&str>,
     response: &LlmResponse,
 ) -> AppResult<()> {
-    let Some(task_id) = task_id else { return Ok(()); };
+    let Some(task_id) = task_id else {
+        return Ok(());
+    };
     let cost = estimate_cost_usd(
         &response.provider,
         &response.model,
@@ -83,6 +85,9 @@ mod tests {
 
     #[test]
     fn ollama_is_free() {
-        assert_eq!(estimate_cost_usd("ollama", "llama3", 1_000_000, 1_000_000), 0.0);
+        assert_eq!(
+            estimate_cost_usd("ollama", "llama3", 1_000_000, 1_000_000),
+            0.0
+        );
     }
 }
