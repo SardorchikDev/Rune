@@ -1,0 +1,84 @@
+[server]
+host = "0.0.0.0"
+port = 8080
+jwt_secret = ""            # loaded from env: RUNE_JWT_SECRET (>=32 chars)
+cors_origins = ["http://localhost:3000"]
+# SHA-256 hex digest of the dashboard password.
+# Generate with: printf '%s' 'mypassword' | sha256sum
+dashboard_password_sha256 = ""
+
+[telegram]
+bot_token = ""             # env: TELEGRAM_BOT_TOKEN
+allowed_user_ids = []      # list of i64 Telegram user IDs
+enabled = false
+
+[llm]
+default_provider = "gemini"
+default_model = "gemini-2.5-pro"
+stream_tokens = true
+max_retries = 3
+timeout_secs = 120
+
+[llm.failover]
+enabled = true
+order = ["gemini", "groq", "openrouter"]
+
+[llm.providers.gemini]
+api_key = ""               # env: GEMINI_API_KEY
+base_url = "https://generativelanguage.googleapis.com/v1beta"
+models = ["gemini-2.5-pro", "gemini-2.5-flash"]
+
+[llm.providers.groq]
+api_key = ""               # env: GROQ_API_KEY
+base_url = "https://api.groq.com/openai/v1"
+models = ["llama3-70b-8192", "mixtral-8x7b-32768"]
+
+[llm.providers.openrouter]
+api_key = ""               # env: OPENROUTER_API_KEY
+base_url = "https://openrouter.ai/api/v1"
+default_model = "meta-llama/llama-3-70b-instruct"
+
+[llm.providers.fireworks]
+api_key = ""               # env: FIREWORKS_API_KEY
+base_url = "https://api.fireworks.ai/inference/v1"
+default_model = "accounts/fireworks/models/llama-v3-70b-instruct"
+
+[llm.providers.anthropic]
+api_key = ""               # env: ANTHROPIC_API_KEY
+base_url = "https://api.anthropic.com/v1"
+default_model = "claude-sonnet-4-20250514"
+
+[llm.providers.openai]
+api_key = ""               # env: OPENAI_API_KEY
+base_url = "https://api.openai.com/v1"
+default_model = "gpt-4o"
+
+[llm.providers.ollama]
+base_url = "http://localhost:11434"
+default_model = "llama3"
+enabled = false
+
+[memory]
+vector_backend = "qdrant"
+qdrant_url = "http://localhost:6333"
+collection_name = "rune_memory"
+embedding_provider = "gemini"
+embedding_model = "text-embedding-004"
+embedding_dim = 768
+top_k = 8
+
+[tools]
+workspace_dir = "./workspace"
+terminal_timeout_secs = 30
+allow_web_search = true
+allow_http_fetch = true
+http_fetch_allowlist = ["github.com", "docs.rs", "crates.io"]
+
+[agent]
+max_iterations = 20
+system_prompt_path = "./prompts/system.md"
+reflection_enabled = true
+auto_summarize_threshold = 15
+
+[database]
+url = "sqlite://./data/rune.db?mode=rwc"
