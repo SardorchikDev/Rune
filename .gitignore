@@ -1,0 +1,34 @@
+# Rust
+/backend/target/
+backend/**/*.rs.bk
+backend/.env
+backend/config.toml
+backend/data/
+backend/workspace/
+
+# Node
+/dashboard/node_modules/
+/dashboard/.next/
+/dashboard/out/
+/dashboard/.env.local
+/dashboard/.env*.local
+/dashboard/next-env.d.ts
+/dashboard/tsconfig.tsbuildinfo
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+.env
+
+# Devin internal artifacts
+.devin/
+requirements.md
